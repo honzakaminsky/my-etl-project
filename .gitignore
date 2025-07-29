@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+logs/
+pgdata/
+etl_report.txt
+.DS_Store
