@@ -20,6 +20,12 @@ services:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'True'
+      AIRFLOW__WEBSERVER__SECRET_KEY: myairflowsecret123
+      AIRFLOW__LOGGING__REMOTE_LOGGING: 'False'
+      POSTGRES_DB: airflow
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_HOST: postgres    
     volumes:
       - ../dags:/opt/airflow/dags
       - ../etl:/opt/airflow/etl
@@ -36,7 +42,12 @@ services:
       - postgres
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__WEBSERVER__SECRET_KEY: myairflowsecret123
       AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      POSTGRES_DB: airflow
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_HOST: postgres
     volumes:
       - ../dags:/opt/airflow/dags
       - ../etl:/opt/airflow/etl
