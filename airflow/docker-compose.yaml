@@ -16,12 +16,22 @@ services:
     image: apache/airflow:2.8.0
     depends_on:
       - airflow-scheduler
+    env_file:
+      - ../.env
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'True'
       AIRFLOW__WEBSERVER__SECRET_KEY: myairflowsecret123
       AIRFLOW__LOGGING__REMOTE_LOGGING: 'False'
+      AIRFLOW__EMAIL__EMAIL_BACKEND: 'airflow.utils.email.send_email_smtp'
+      AIRFLOW__SMTP__SMTP_HOST: smtp.gmail.com
+      AIRFLOW__SMTP__SMTP_STARTTLS: 'True'
+      AIRFLOW__SMTP__SMTP_SSL: 'False'
+      AIRFLOW__SMTP__SMTP_PORT: 587
+      AIRFLOW__SMTP__SMTP_MAIL_FROM: 'honza.kaminsky@gmail.com'
+      AIRFLOW__SMTP__SMTP_USER: 'honza.kaminsky@gmail.com'
+      AIRFLOW__SMTP__SMTP_PASSWORD: 'btxcalkybmrlerik'
       POSTGRES_DB: airflow
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -40,10 +50,20 @@ services:
     image: apache/airflow:2.8.0
     depends_on:
       - postgres
+    env_file:
+      - ../.env
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__WEBSERVER__SECRET_KEY: myairflowsecret123
       AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__EMAIL__EMAIL_BACKEND: 'airflow.utils.email.send_email_smtp'
+      AIRFLOW__SMTP__SMTP_HOST: smtp.gmail.com
+      AIRFLOW__SMTP__SMTP_STARTTLS: 'True'
+      AIRFLOW__SMTP__SMTP_SSL: 'False'
+      AIRFLOW__SMTP__SMTP_PORT: 587
+      AIRFLOW__SMTP__SMTP_MAIL_FROM: 'honza.kaminsky@gmail.com'
+      AIRFLOW__SMTP__SMTP_USER: 'honza.kaminsky@gmail.com'
+      AIRFLOW__SMTP__SMTP_PASSWORD: 'btxcalkybmrlerik'
       POSTGRES_DB: airflow
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow

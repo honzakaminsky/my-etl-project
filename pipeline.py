@@ -27,4 +27,4 @@ with open('etl_report.txt', 'w') as f:
     f.write(f'Valid rows: {len(df_clean)}\n')
     f.write(f'Dropped rows: {len(df) - len(df_clean)}\n')
 
-print("✅ ETL process completed successfully.")
+print("ETL process completed successfully.")
