@@ -40,11 +40,19 @@ df = df.withColumn(
 df = df.filter(F.col("DateTime").isNotNull())
 
 # Cast numeric columns
-df.filter(~F.col("Open").rlike("^[0-9.]+$")).show(5, truncate=False)
-for c in ["Open","High","Low","Close"]:
-    df = df.withColumn(c, F.when(F.col(c).rlike(r"^[0-9]+(\.[0-9]+)?$"), F.col(c).cast(T.DoubleType())))
-for c in ["Volume","TickVolume"]:
-    df = df.withColumn(c, F.when(F.col(c).rlike(r"^[0-9]+$"), F.col(c).cast(T.LongType())))
+# floats/decimals
+for c in ["Open", "High", "Low", "Close", "Volume"]:
+    df = df.withColumn(
+        c,
+        F.when(F.col(c).rlike(r"^[0-9]+(\.[0-9]+)?$"), F.col(c).cast(T.DoubleType()))
+         .otherwise(F.lit(None).cast(T.DoubleType()))
+    )
+# integers
+df = df.withColumn(
+    "TickVolume",
+    F.when(F.col("TickVolume").rlike(r"^[0-9]+$"), F.col("TickVolume").cast(T.LongType()))
+     .otherwise(F.lit(None).cast(T.LongType()))
+)
 
 # Add month column
 df = df.withColumn("month", F.date_format(F.col("DateTime"), "yyyy.MM"))
@@ -61,6 +69,42 @@ df_filtered = df.filter(F.col('Volume') > 1000000)
 # Show max/min close
 print('Highest and lowest Close price:')
 df.select(F.max('Close').alias('max_close'), F.min('Close').alias('min_close')).show()
+
+# --- Save cleaned DataFrame to Parquet ---
+parquet_path = 'output/nasdaq_clean.parquet'
+df.write.mode('overwrite').parquet(parquet_path)
+print(f'Data saved to {parquet_path}')
+
+#Load the Parquet file back
+df_parquet = spark.read.parquet(parquet_path)
+print('Data loaded back from Parquet:')
+df_parquet.show(5, truncate=False)
+
+#Compare outputs to be sure that data matches
+print(f'Original count: {df.count()}, Reloaded count: {df_parquet.count()}')
+
+#Calculate monthly average Close price
+monthly_avg = (
+    df_parquet
+    .groupBy('month')
+    .agg(F.round(F.avg('Close'), 2). alias('avg_close'))
+    .orderBy('month')
+)
+print('Monthly average close price:')
+monthly_avg.show(truncate=False)
+
+#TOP 5 months by total trading volumne
+top_months_volume = (
+    df_parquet
+    .groupBy('month')
+    .agg(F.sum('Volume').alias('total_volume'))
+    .orderBy(F.desc('total_volume'))
+    .limit(5)
+)
+
+print(f'Top 5 months by total trading volume:')
+top_months_volume.show(truncate=False)
+
 
 # Stop Spark
 spark.stop()
